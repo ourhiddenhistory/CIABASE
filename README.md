@@ -27,11 +27,16 @@ Source (full bibliography) formatted as:
 
 `{SOURCE_CODE} {BIBLIOGRAPHY}`
 
-*Note: Bibliographies contain linebreaks* 
+*Note: Bibliographies contain linebreaks*
 
 **Issues**
 
 - SOURCE (full bibliography) may be hard to parse, contain numerous newlines
+- Some SOURCES don't have SOURCE_CODES
+
+**Fixes**
+
+- Find replace newlines
 
 ### ENTRIES
 

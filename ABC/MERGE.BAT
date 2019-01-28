@@ -1,0 +1,3 @@
+COPY ??? C:\MERDAT
+MERGEMER %1
+

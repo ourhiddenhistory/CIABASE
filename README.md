@@ -42,6 +42,12 @@ Source (full bibliography) formatted as:
 
 The entries themselves are formatted in the following manner:
 
+Single subject:
+
+`{SUBJECT}, @{DATE/DATES}@ {ENTRY} <{SOURCE CODE} {PERIODICAL_DATE PAGE/PAGES}`
+
+Multi subject:
+
 `{SUBJECT,SUBJECT}~ @{DATE/DATES}@ {ENTRY} <{SOURCE CODE} {PERIODICAL_DATE PAGE/PAGES}`
 
 DATE, PERIODICAL_DATE are sometimes excluded

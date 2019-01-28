@@ -1,5 +1,7 @@
 #!/bin/node
 
+const fs = require('fs')
+
 const SOURCESFILE = './ABC/books'
 const SUBJECTSFILE = './ABC/SUBJECTS'
 const ENTRIESFILE = './ENTRIES-ALL'
@@ -8,26 +10,30 @@ const SOURCES = {}
 const SUBJECTS = {}
 const ENTRIES = []
 
-function readLines(input, func) {
-  var remaining = '';
+let fileContents, lines
 
-  input.on('data', function(data) {
-    remaining += data;
-    var index = remaining.indexOf('\n');
-    var last  = 0;
-    while (index > -1) {
-      var line = remaining.substring(last, index);
-      last = index + 1;
-      func(line);
-      index = remaining.indexOf('\n', last);
-    }
+// SOURCES to object
+fileContents = fs.readFileSync(SOURCESFILE, 'utf8');
+lines = fileContents.split('\n');
 
-    remaining = remaining.substring(last);
-  });
+for(l in lines){
+  let parts = lines[l].split(/^([A-Z&]+[ ]{2})/);
 
-  input.on('end', function() {
-    if (remaining.length > 0) {
-      func(remaining);
-    }
-  });
+  console.log(parts)
+
+  if(parts.length == 1) continue
+
+  parts[1] = parts[1].trim()
+  parts[2] = parts[2].trim()
+  SOURCES[parts[1]] = parts[2]
 }
+
+console.log(SOURCES)
+
+// SUBJECTS to object
+fileContents = fs.readFileSync(SUBJECTSFILE, 'utf8');
+lines = fileContents.split('\n');
+
+// ENTRIES to array
+fileContents = fs.readFileSync(ENTRIESFILE, 'utf8');
+lines = fileContents.split('\n');

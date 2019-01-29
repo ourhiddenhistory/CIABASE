@@ -3,6 +3,7 @@
 const fs = require('fs')
 
 const SOURCESFILE = './ABC/books'
+const SOURCESALTFILE = './ABC/CODES'
 const SUBJECTSFILE = './ABC/SUBJECTS'
 const ENTRIESFILE = './ENTRIES-ALL'
 const OUTFILE = './CIABASE.json'
@@ -12,6 +13,21 @@ const SUBJECTS = {}
 const ENTRIES = []
 
 let fileContents, lines
+
+// SOURCES to object
+fileContents = fs.readFileSync(SOURCESALTFILE, 'utf8');
+lines = fileContents.split('\n');
+lines = lines.filter(el => el != '')
+
+for(l in lines){
+  let parts = lines[l].split(',')
+  if(parts.length == 1) continue
+
+  parts[1] = parts[1].trim()
+  let source = parts.shift()
+  source = parts.join().trim()
+  SOURCES[parts[1]] = source
+}
 
 // SOURCES to object
 fileContents = fs.readFileSync(SOURCESFILE, 'utf8');
@@ -55,9 +71,13 @@ lines = lines.filter(el => el != '')
 let ENTRY = {}
 let subjects, fixedSubjects, parts
 
+let index = 0
 for(l in lines){
 
-  ENTRY = {}
+  ENTRY = {
+    "id": index
+  }
+  index++
 
   // fix emails
   email_regex = /([a-zA-Z0-9._-]+)@([a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi;
@@ -75,7 +95,7 @@ for(l in lines){
   if(entry_sourcecode.length > 1){
     let sourcecode_page = entry_sourcecode[1].split(' ')
     ENTRY.sourcecode = sourcecode_page[0]
-    ENTRY.source = SOURCES[sourcecode_page[0]]
+    ENTRY.source = (SOURCES[sourcecode_page[0]] ? SOURCES[sourcecode_page[0]] : 'NO SOURCE LISTED.')
     if(sourcecode_page.length > 1){
       sourcecode_page.shift()
       ENTRY.sourcepage = sourcecode_page.join(' ').replace(/~/g, ',').trim().replace(/^,|,$/g, '')
@@ -110,7 +130,7 @@ for(l in lines){
   }
 
   // get entry
-  entry = entry.replace(/([A-Z,\- ]+[0-9\-]{4,9})/, '$1|')
+  entry = entry.replace(/([A-Z,\- ]?[0-9\-]{4,9})/, '$1|')
   entry = entry.replace(/(\|[A-Z])/, ' $1')
   opening_entry = entry.split('|')
   if(opening_entry.length > 1){

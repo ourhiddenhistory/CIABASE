@@ -1,0 +1,21 @@
+{
+  "name": "ciabase",
+  "version": "1.0.0",
+  "description": "## Current Schema",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-OHH:ourhiddenhistory/CIABASE.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase-admin": "^6.5.1",
+    "json2csv": "^4.3.3",
+    "jsonexport": "^2.4.1",
+    "sleep": "^6.0.0"
+  }
+}

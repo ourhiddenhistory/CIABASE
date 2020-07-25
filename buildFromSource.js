@@ -79,7 +79,8 @@ let index = 0
 for(l in lines){
 
   ENTRY = {
-    "id": index
+    "id": index,
+    "raw": lines[l]
   }
   index++
 
@@ -92,6 +93,9 @@ for(l in lines){
   subject_entry.filter(el => el != '')
   ENTRY.subject = subject_entry[0].trim()
   ENTRY.subjectdesc = SUBJECTS[ENTRY.subject]
+  if(ENTRY.subjectdesc){
+    ENTRY.subject = `${ENTRY.subject}, ${ENTRY.subjectdesc}`
+  }
 
   entry = subject_entry[1]
 
@@ -104,13 +108,17 @@ for(l in lines){
   if(entry_sourcecode.length > 1){
     let sourcecode_page = entry_sourcecode[1].split(' ')
     ENTRY.sourcecode = sourcecode_page[0]
-    ENTRY.source = (SOURCES[sourcecode_page[0]] ? SOURCES[sourcecode_page[0]] : 'NO SOURCE LISTED.')
+    ENTRY.source = (SOURCES[sourcecode_page[0]] ? SOURCES[sourcecode_page[0]] : `No entry found for source code: <b>'${sourcecode_page[0]}'</b>, Refer to <a href="https://github.com/ourhiddenhistory/CIABASE/blob/master/ABC/books">source list</a> if needed.`)
     if(sourcecode_page.length > 1){
       sourcecode_page.shift()
       ENTRY.sourcepage = sourcecode_page.join(' ').replace(/~/g, ',').trim().replace(/^,|,$/g, '')
     }
+    ENTRY.source = `${ENTRY.source} ${ENTRY.sourcepage}`
   }else{ // use everything after the last period
     ENTRY.source = entry.substring(entry.lastIndexOf(".") + 1, entry.length).trim();
+    if(ENTRY.source === entry){
+      ENTRY.source = 'None found. Check body of entry for source. Refer to <a href="https://github.com/ourhiddenhistory/CIABASE/blob/master/ABC/books">source list</a> if needed.'
+    }
   }
 
   entry = entry_sourcecode[0]
@@ -170,12 +178,17 @@ for(l in lines){
 ENTRIES.forEach(el => {
   const filename = `111-ciabase_${el.id + 1}.txt`
   const text = `
-<small>SUBJECT:</small> ${el.subject}, ${el.subjectdesc}
+<small>SUBJECT:</small> ${el.subject}
 
 <small>DATES:</small> ${el.entrydates}
 <small>ENTRY:</small> ${el.entry}
 
-<small>SOURCE:</small> ${el.source} ${el.sourcepage}
+<small>SOURCE:</small> ${el.source}
+
+<hr />
+<small>
+  raw: <pre>${el.raw}</pre>
+</small>
 `
   fs.writeFileSync(`${TEXTOUTDIR}/${filename}`, text)
   console.log(`writing ${el.id + 1}`);

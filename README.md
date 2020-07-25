@@ -32,7 +32,7 @@ Source (full bibliography) formatted as:
 **Issues**
 
 - SOURCE (full bibliography) may be hard to parse, contain numerous newlines
-- Some SOURCES don't have SOURCE_CODES
+- Some SOURCES don't have SOURCE_CODES. These for the most part have the source appended to the end of the entry, after a `.`. If no source code is available, we set the source to whatever is after the last `.` in the entry.
 
 **Fixes**
 

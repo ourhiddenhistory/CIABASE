@@ -1,12 +1,16 @@
 #!/bin/node
 
 const fs = require('fs')
+jsonexport = require('jsonexport');
 
 const SOURCESFILE = './ABC/books'
 const SOURCESALTFILE = './ABC/CODES'
 const SUBJECTSFILE = './ABC/SUBJECTS'
 const ENTRIESFILE = './ENTRIES-ALL'
-const OUTFILE = './CIABASE.json'
+const JSONOUTFILE = './CIABASE.json'
+const CSVOUTFILE = './CIABASE.csv'
+
+const TEXTOUTDIR = 'TEXTFILES'
 
 const SOURCES = {}
 const SUBJECTS = {}
@@ -87,10 +91,15 @@ for(l in lines){
   let subject_entry = lines[l].split(',')
   subject_entry.filter(el => el != '')
   ENTRY.subject = subject_entry[0].trim()
+  ENTRY.subjectdesc = SUBJECTS[ENTRY.subject]
 
   entry = subject_entry[1]
 
   // get sourcecode, source if available
+  ENTRY.sourcecode = '.'
+  ENTRY.source = 'No Source Listed'
+
+  // The source is sometimes set off with a '<'. When it isn't, it is appended to the entry after the last '.'
   let entry_sourcecode = entry.split('<')
   if(entry_sourcecode.length > 1){
     let sourcecode_page = entry_sourcecode[1].split(' ')
@@ -100,12 +109,14 @@ for(l in lines){
       sourcecode_page.shift()
       ENTRY.sourcepage = sourcecode_page.join(' ').replace(/~/g, ',').trim().replace(/^,|,$/g, '')
     }
+  }else{ // use everything after the last period
+    ENTRY.source = entry.substring(entry.lastIndexOf(".") + 1, entry.length).trim();
   }
 
   entry = entry_sourcecode[0]
 
   // get dates
-  ENTRY.dates = []
+  ENTRY.entrydates = []
   date_regex = RegExp(/(@[0-9\-\/]{2,5}@)/gi);
   dates = entry.match(date_regex)
 
@@ -113,21 +124,24 @@ for(l in lines){
     for(d in dates){
       let _date = dates[d].replace(/^@|@$/g, '')
       if(_date.match(/^[0-9]{2}$/)){
-        ENTRY.dates.push('19'+_date)
+        ENTRY.entrydates.push('19'+_date)
       }
       if(_date.match(/[0-9]{2}\-[0-9]{2}/)){
         let range = _date.split('-')
         range[0] = '19'+range[0]
         range[1] = '19'+range[1]
-        ENTRY.dates.push(range.join('-'))
+        ENTRY.entrydates.push(range.join('-'))
+      }else{
+        ENTRY.entrydates = []
       }
     }
 
     for(d in dates){
       replace_date_regex = RegExp(dates[d], 'g')
-      entry = entry.replace(replace_date_regex, ENTRY.dates[d])
+      entry = entry.replace(replace_date_regex, ENTRY.entrydates[d])
     }
   }
+  ENTRY.entrydates.sort()
 
   // get entry
   entry = entry.replace(/([A-Z,\- ]?[0-9\-]{4,9})/, '$1|')
@@ -136,20 +150,57 @@ for(l in lines){
   if(opening_entry.length > 1){
     opening_entry[0] = opening_entry[0].trim()
     opening_entry[1] = opening_entry[1].trim()
-    entry = '**'+opening_entry[0]+'** '+opening_entry[1]
+    entry = '<strong>'+opening_entry[0]+'</strong> '+opening_entry[1]
   }
 
   ENTRY.entry = entry.replace().replace(/\~/g, ',').replace(/\^/g, '"').trim().replace(/^,|,$/g, '')
 
+  if(l == 27369){
+    console.log("\n");
+    console.log(entry_sourcecode);
+    console.log("\n");
+    console.log(ENTRY);
+  }
+
   // get source
-  ENTRIES.push(ENTRY)
+  ENTRIES[ENTRY.id] = ENTRY
 
 }
 
+ENTRIES.forEach(el => {
+  const filename = `111-ciabase_${el.id + 1}.txt`
+  const text = `
+<small>SUBJECT:</small> ${el.subject}, ${el.subjectdesc}
+
+<small>DATES:</small> ${el.entrydates}
+<small>ENTRY:</small> ${el.entry}
+
+<small>SOURCE:</small> ${el.source} ${el.sourcepage}
+`
+  fs.writeFileSync(`${TEXTOUTDIR}/${filename}`, text)
+  console.log(`writing ${el.id + 1}`);
+})
+
 const json = JSON.stringify(ENTRIES, null, 2);
-fs.writeFile(OUTFILE, json, (err) => {
+fs.writeFile(JSONOUTFILE, json, (err) => {
   if (err) {
     return console.log(err);
   }
   return err;
+});
+
+
+for(i in ENTRIES){
+  ENTRIES[i].entrydates.join(', ')
+  if(ENTRIES[i].entrydates == '')
+    ENTRIES[i].entrydates = '.'
+}
+jsonexport(ENTRIES,function(err, csv){
+    if(err) return console.log(err);
+    fs.writeFile(CSVOUTFILE, csv, (err) => {
+      if (err) {
+        return console.log(err);
+      }
+      return err;
+    });
 });

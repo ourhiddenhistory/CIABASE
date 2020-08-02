@@ -16,6 +16,15 @@ const SOURCES = {}
 const SUBJECTS = {}
 const ENTRIES = []
 
+const escapeHTML = str => str.replace(/[&<>'"]/g,
+  tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag]));
+
 let fileContents, lines
 
 // SOURCES to object
@@ -80,7 +89,7 @@ for(l in lines){
 
   ENTRY = {
     "id": index,
-    "raw": lines[l]
+    "raw": escapeHTML(lines[l])
   }
   index++
 
@@ -133,8 +142,7 @@ for(l in lines){
       let _date = dates[d].replace(/^@|@$/g, '')
       if(_date.match(/^[0-9]{2}$/)){
         ENTRY.entrydates.push('19'+_date)
-      }
-      if(_date.match(/[0-9]{2}\-[0-9]{2}/)){
+      }else if(_date.match(/[0-9]{2}\-[0-9]{2}/)){
         let range = _date.split('-')
         range[0] = '19'+range[0]
         range[1] = '19'+range[1]
@@ -187,7 +195,7 @@ ENTRIES.forEach(el => {
 
 <hr />
 <small>
-  raw: <pre>${el.raw}</pre>
+  raw: <pre style="white-space: pre-wrap;">${el.raw}</pre>
 </small>
 `
   fs.writeFileSync(`${TEXTOUTDIR}/${filename}`, text)

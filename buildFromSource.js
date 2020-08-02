@@ -7,10 +7,10 @@ const SOURCESFILE = './ABC/books'
 const SOURCESALTFILE = './ABC/CODES'
 const SUBJECTSFILE = './ABC/SUBJECTS'
 const ENTRIESFILE = './ENTRIES-ALL'
-const JSONOUTFILE = './CIABASE.json'
-const CSVOUTFILE = './CIABASE.csv'
+const JSONOUTFILE = './builds/CIABASE.json'
+const CSVOUTFILE = './builds/CIABASE.csv'
 
-const TEXTOUTDIR = 'TEXTFILES'
+const TEXTOUTDIR = './builds/TEXTFILES'
 
 const SOURCES = {}
 const SUBJECTS = {}
